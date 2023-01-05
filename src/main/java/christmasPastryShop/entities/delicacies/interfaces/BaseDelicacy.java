@@ -1,6 +1,6 @@
 package christmasPastryShop.entities.delicacies.interfaces;
 
-import static christmasPastryShop.common.ExceptionMessages.INVALID_NAME;
+import static christmasPastryShop.common.ExceptionMessages.*;
 
 public abstract class BaseDelicacy implements Delicacy{
 
@@ -10,8 +10,8 @@ public abstract class BaseDelicacy implements Delicacy{
 
     public BaseDelicacy(String name, double portion, double price) {
         setName(name);
-        this.portion = portion;
-        this.price = price;
+        setPortion(portion);
+        setPrice(price);
     }
 
     public void setName(String name) {
@@ -21,18 +21,38 @@ public abstract class BaseDelicacy implements Delicacy{
         this.name = name;
     }
 
+    public void setPortion(double portion) {
+        if (portion <= 0) {
+            throw new IllegalArgumentException(INVALID_PORTION);
+        }
+        this.portion = portion;
+    }
+
+    public void setPrice(double price) {
+        if (price <= 0) {
+            throw new IllegalArgumentException(INVALID_PRICE);
+        }
+        this.price = price;
+    }
+
     @Override
     public String getName() {
-        return null;
+        return name;
     }
 
     @Override
     public double getPortion() {
-        return 0;
+        return portion;
     }
 
     @Override
     public double getPrice() {
-        return 0;
+        return price;
+    }
+
+    public String toString() {
+        return String.format(
+                "%s: %.2fg - %.2flv", this.name, this.portion, this.price
+        );
     }
 }

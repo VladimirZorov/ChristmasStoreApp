@@ -13,7 +13,7 @@ public abstract class BaseCocktail implements Cocktail{
         setName(name);
         setSize(size);
         setPrice(price);
-        this.brand = brand;
+        setBrand(brand);
     }
 
     public void setName(String name) {

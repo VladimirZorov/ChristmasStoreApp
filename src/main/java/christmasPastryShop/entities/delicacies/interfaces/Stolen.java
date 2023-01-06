@@ -4,7 +4,7 @@ public class Stolen extends BaseDelicacy{
 
     private static final double PORTION = 250;
 
-    public Stolen(String name, double portion, double price) {
+    public Stolen(String name, double price) {
         super(name, PORTION, price);
     }
 }

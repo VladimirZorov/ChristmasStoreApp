@@ -1,29 +1,73 @@
 package christmasPastryShop.core;
 
+import christmasPastryShop.common.ExceptionMessages;
+import christmasPastryShop.common.OutputMessages;
+import christmasPastryShop.common.enums.CocktailType;
+import christmasPastryShop.common.enums.DelicacyType;
 import christmasPastryShop.core.interfaces.Controller;
+import christmasPastryShop.entities.cocktails.interfaces.Hibernation;
+import christmasPastryShop.entities.cocktails.interfaces.MulledWine;
 import christmasPastryShop.entities.delicacies.interfaces.Delicacy;
 import christmasPastryShop.entities.cocktails.interfaces.Cocktail;
 import christmasPastryShop.entities.booths.interfaces.Booth;
+import christmasPastryShop.entities.delicacies.interfaces.Gingerbread;
+import christmasPastryShop.entities.delicacies.interfaces.Stolen;
 import christmasPastryShop.repositories.interfaces.BoothRepository;
 import christmasPastryShop.repositories.interfaces.CocktailRepository;
 import christmasPastryShop.repositories.interfaces.DelicacyRepository;
 
+import static christmasPastryShop.common.ExceptionMessages.FOOD_OR_DRINK_EXIST;
+import static christmasPastryShop.common.OutputMessages.COCKTAIL_ADDED;
+import static christmasPastryShop.common.OutputMessages.DELICACY_ADDED;
+
 public class ControllerImpl implements Controller {
 
-    public ControllerImpl(DelicacyRepository<Delicacy> delicacyRepository, CocktailRepository<Cocktail> cocktailRepository, BoothRepository<Booth> boothRepository) {
-    }
+    private final DelicacyRepository<Delicacy> delicacyRepository;
+    private final CocktailRepository<Cocktail> cocktailRepository;
+    private final BoothRepository<Booth> boothRepository;
+    private double totalIncome;
 
+    public ControllerImpl(DelicacyRepository<Delicacy> delicacyRepository, CocktailRepository<Cocktail> cocktailRepository, BoothRepository<Booth> boothRepository) {
+        this.delicacyRepository = delicacyRepository;
+        this.cocktailRepository = cocktailRepository;
+        this.boothRepository = boothRepository;
+        this.totalIncome = 0;
+    }
 
     @Override
     public String addDelicacy(String type, String name, double price) {
-        // TODO
-        return null;
+        Delicacy delicacy = delicacyRepository.getByName(name);
+        if (delicacy == null) {
+            DelicacyType foodType = DelicacyType.valueOf(type);
+            switch (foodType) {
+                case Gingerbread:
+                    delicacy = new Gingerbread(name, price);
+                    break;
+                case Stolen:
+                    delicacy = new Stolen(name, price);
+                    break;
+            }
+        } else {
+            throw new IllegalArgumentException(String.format(ExceptionMessages.FOOD_OR_DRINK_EXIST, delicacy.getClass().getSimpleName(), name));
+        }
+        delicacyRepository.add(delicacy);
+        return String.format(OutputMessages.DELICACY_ADDED, name, type);
     }
-
     @Override
     public String addCocktail(String type, String name, int size, String brand) {
-        //TODO
-        return null;
+       Cocktail cocktail = cocktailRepository.getByName(name);
+       if (name == null) {
+           CocktailType cocktailType = CocktailType.valueOf(type);
+           if (cocktailType.equals("MulledWine")){
+               cocktail = new MulledWine(name ,size ,brand);
+           } else if (cocktailType.equals("Hibernation")){
+               cocktail = new Hibernation(name, size, brand);
+           }
+       }else {
+           throw new IllegalArgumentException(String.format(FOOD_OR_DRINK_EXIST,name,type));
+       }
+       cocktailRepository.add(cocktail);
+        return String.format(COCKTAIL_ADDED,name,brand);
     }
 
     @Override

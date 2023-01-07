@@ -2,9 +2,12 @@ package christmasPastryShop.core;
 
 import christmasPastryShop.common.ExceptionMessages;
 import christmasPastryShop.common.OutputMessages;
+import christmasPastryShop.common.enums.BoothType;
 import christmasPastryShop.common.enums.CocktailType;
 import christmasPastryShop.common.enums.DelicacyType;
 import christmasPastryShop.core.interfaces.Controller;
+import christmasPastryShop.entities.booths.interfaces.OpenBooth;
+import christmasPastryShop.entities.booths.interfaces.PrivateBooth;
 import christmasPastryShop.entities.cocktails.interfaces.Hibernation;
 import christmasPastryShop.entities.cocktails.interfaces.MulledWine;
 import christmasPastryShop.entities.delicacies.interfaces.Delicacy;
@@ -16,9 +19,9 @@ import christmasPastryShop.repositories.interfaces.BoothRepository;
 import christmasPastryShop.repositories.interfaces.CocktailRepository;
 import christmasPastryShop.repositories.interfaces.DelicacyRepository;
 
+import static christmasPastryShop.common.ExceptionMessages.BOOTH_EXIST;
 import static christmasPastryShop.common.ExceptionMessages.FOOD_OR_DRINK_EXIST;
-import static christmasPastryShop.common.OutputMessages.COCKTAIL_ADDED;
-import static christmasPastryShop.common.OutputMessages.DELICACY_ADDED;
+import static christmasPastryShop.common.OutputMessages.*;
 
 public class ControllerImpl implements Controller {
 
@@ -56,7 +59,7 @@ public class ControllerImpl implements Controller {
     @Override
     public String addCocktail(String type, String name, int size, String brand) {
        Cocktail cocktail = cocktailRepository.getByName(name);
-       if (name == null) {
+       if (cocktail == null) {
            CocktailType cocktailType = CocktailType.valueOf(type);
            if (cocktailType.equals("MulledWine")){
                cocktail = new MulledWine(name ,size ,brand);
@@ -72,13 +75,28 @@ public class ControllerImpl implements Controller {
 
     @Override
     public String addBooth(String type, int boothNumber, int capacity) {
-        //TODO
-        return null;
+        Booth booth = boothRepository.getByNumber(boothNumber);
+        if (booth == null) {
+            BoothType boothType = BoothType.valueOf(type);
+            if (boothType.equals("OpenBooth")) {
+                booth = new OpenBooth(boothNumber, capacity);
+            } else if (boothType.equals("PrivateBooth")) {
+                booth = new PrivateBooth(boothNumber, capacity);
+            }
+        } else {
+            throw  new IllegalArgumentException(String.format(BOOTH_EXIST, boothNumber));
+        }
+        boothRepository.add(booth);
+        return String.format(BOOTH_ADDED, boothNumber);
     }
 
     @Override
     public String reserveBooth(int numberOfPeople) {
-        //TODO
+       for (Booth booth : boothRepository.getAll()) {
+           if (!booth.isReserved() && booth.getCapacity() >= numberOfPeople) {
+               booth.reserve(numberOfPeople);
+           }
+       }
         return null;
     }
 

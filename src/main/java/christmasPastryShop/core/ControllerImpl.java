@@ -95,20 +95,23 @@ public class ControllerImpl implements Controller {
        for (Booth booth : boothRepository.getAll()) {
            if (!booth.isReserved() && booth.getCapacity() >= numberOfPeople) {
                booth.reserve(numberOfPeople);
+               return String.format(BOOTH_RESERVED, booth.getBoothNumber(), numberOfPeople);
            }
        }
-        return null;
+        return String.format(RESERVATION_NOT_POSSIBLE, numberOfPeople);
     }
 
     @Override
     public String leaveBooth(int boothNumber) {
-        //TODO
-        return null;
+        Booth booth = boothRepository.getByNumber(boothNumber);
+        double bill = booth.getBill();
+        this.totalIncome += bill;
+        booth.clear();
+        return String.format(OutputMessages.BILL, boothNumber, bill);
     }
 
     @Override
     public String getIncome() {
-        //TODO
-        return null;
+        return String.format(OutputMessages.TOTAL_INCOME, this.totalIncome);
     }
 }
